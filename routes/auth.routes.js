@@ -11,8 +11,8 @@ const router = Router()
 router.post(
     '/register',
     [
-        check('email', 'Некорректный email').isEmail(),
-        check('password', 'Минимальная длина пароля 6 символов')
+        check('email', 'Incorrect Email').isEmail(),
+        check('password', 'Min lenght of password is 6')
             .isLength({ min: 6 })
     ],
     async (req, res) => {
@@ -22,7 +22,7 @@ router.post(
             if (!errors.isEmpty()) {
                 return res.status(400).json({
                     errors: errors.array(),
-                    message: 'Некорректный данные при регистрации'
+                    message: 'Incorrect data on registration'
                 })
             }
 
@@ -31,7 +31,7 @@ router.post(
             const candidate = await User.findOne({ email })
 
             if (candidate) {
-                return res.status(400).json({ message: 'Такой пользователь уже существует' })
+                return res.status(400).json({ message: 'User with this email already exists' })
             }
 
             const hashedPassword = await bcrypt.hash(password, 12)
@@ -39,11 +39,11 @@ router.post(
 
             await user.save()
 
-            res.status(201).json({ message: 'Пользователь создан' })
+            res.status(201).json({ message: 'Successfully registered' })
 
         } catch (e) {
             console.log(e)
-            res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' })
+            res.status(500).json({ message: 'Something went wrong, please try again' })
         }
     })
 
@@ -51,8 +51,8 @@ router.post(
 router.post(
     '/login',
     [
-        check('email', 'Введите корректный email').normalizeEmail().isEmail(),
-        check('password', 'Введите пароль').exists()
+        check('email', 'Incorrect email').normalizeEmail().isEmail(),
+        check('password', 'Write password').exists()
     ],
     async (req, res) => {
         try {
@@ -61,7 +61,7 @@ router.post(
             if (!errors.isEmpty()) {
                 return res.status(400).json({
                     errors: errors.array(),
-                    message: 'Некорректный данные при входе в систему'
+                    message: 'Incorrect data on login'
                 })
             }
 
@@ -70,13 +70,13 @@ router.post(
             const user = await User.findOne({ email })
 
             if (!user) {
-                return res.status(400).json({ message: 'Пользователь не найден' })
+                return res.status(400).json({ message: 'User not found' })
             }
 
             const isMatch = await bcrypt.compare(password, user.password)
 
             if (!isMatch) {
-                return res.status(400).json({ message: 'Неверный пароль, попробуйте снова' })
+                return res.status(400).json({ message: 'Incorrect password, please try again' })
             }
 
             const token = jwt.sign(
@@ -88,7 +88,7 @@ router.post(
             res.json({ token, userId: user.id })
 
         } catch (e) {
-            res.status(500).json({ message: 'Что-то пошло не так, попробуйте снова' })
+            res.status(500).json({ message: 'Something went wrong, please try again' })
         }
     })
 
